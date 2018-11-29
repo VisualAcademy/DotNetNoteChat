@@ -1,0 +1,55 @@
+﻿@model List<Chat>
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>채팅</title>
+</head>
+<body>
+    <h1>채팅</h1>
+
+    <form id="send-form" action="#" enctype="multipart/form-data">
+        메시지 전송:
+        <input type="text" id="message-textbox" disabled />
+        <button id="send-button" type="submit" disabled>전송</button>
+        <hr />
+        <input type="file" name="files" value="" id="files" />
+        <input type="button" name="btnUpload" value="업로드" id="btnUpload" />
+    </form>
+
+    <ul id="messages-list">
+        @foreach (var chat in Model)
+        {
+            <li>@chat.Name : @Html.Raw(chat.Message)</li>
+        }
+    </ul>
+
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <script src="~/lib/signalr/signalr.js"></script>
+    <script src="~/js/chatPhoto.js"></script>
+    <script>
+        $(function () {
+
+            $("#btnUpload").click(function () {
+                var formData = new FormData();
+                formData.append('files', $('#files')[0].files[0]);
+                $.ajax({
+                    url: '/Chat/Post',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    enctype: 'multipart/form-data',
+                    success: function (data) {
+                        //console.log(data.url);
+                        connection.send("Send", data.url);
+                    }
+                });
+            });
+
+        });
+    </script>
+</body>
+</html>
